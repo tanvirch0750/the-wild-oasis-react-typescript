@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 
-import { css } from 'styled-components';
+import { css, styled } from 'styled-components';
 
 const sizes = {
   small: css`
@@ -50,3 +50,24 @@ const variations = {
     }
   `,
 };
+
+type IButtonProps = {
+  variation?: 'primary' | 'secondary' | 'danger';
+  size?: 'small' | 'medium' | 'large';
+};
+
+const Button = styled.button<IButtonProps>`
+  border: none;
+  border-radius: var(--border-radius-sm);
+  box-shadow: var(--shadow-sm);
+
+  ${(props) => sizes[props.size!]}
+  ${(props) => variations[props.variation!]}
+`;
+
+Button.defaultProps = {
+  variation: 'primary',
+  size: 'medium',
+};
+
+export default Button;
