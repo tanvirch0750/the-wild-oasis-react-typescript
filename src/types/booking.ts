@@ -1,9 +1,8 @@
-import { IFromTodayFunction } from './utils';
-
 export type IBooking = {
-  created_at: ReturnType<IFromTodayFunction>;
-  startDate: ReturnType<IFromTodayFunction>;
-  endDate: ReturnType<IFromTodayFunction>;
+  id?: number;
+  created_at?: string;
+  startDate: string;
+  endDate: string;
   cabinId: number;
   guestId: number;
   hasBreakfast: boolean;
