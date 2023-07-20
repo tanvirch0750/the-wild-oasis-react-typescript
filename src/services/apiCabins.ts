@@ -12,6 +12,19 @@ export async function getCabins(): Promise<ICabin[]> {
   return data as ICabin[];
 }
 
+export async function createCabin(newCabin: ICabin) {
+  const { data, error } = await supabase
+    .from('oasis_cabins')
+    .insert([newCabin])
+    .select();
+
+  if (error) {
+    throw new Error('Cabins could not be added');
+  }
+
+  return data as ICabin[];
+}
+
 export async function deleteCabin(id: number) {
   const { data, error } = await supabase
     .from('oasis_cabins')
@@ -19,7 +32,6 @@ export async function deleteCabin(id: number) {
     .eq('id', id);
 
   if (error) {
-    console.error(error);
     throw new Error('Cabins could not be deleted');
   }
 

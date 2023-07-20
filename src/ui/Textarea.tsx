@@ -1,6 +1,10 @@
-import styled from "styled-components";
+import styled from 'styled-components';
 
-const Textarea = styled.textarea`
+type ITextAreaProps = {
+  type?: 'number';
+};
+
+const Textarea = styled.textarea<ITextAreaProps>`
   padding: 0.8rem 1.2rem;
   border: 1px solid var(--color-grey-300);
   border-radius: 5px;
