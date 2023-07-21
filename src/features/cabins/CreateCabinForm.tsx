@@ -1,10 +1,11 @@
+/* eslint-disable @typescript-eslint/no-misused-promises */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { SubmitErrorHandler, SubmitHandler, useForm } from 'react-hook-form';
+import { SubmitHandler, useForm } from 'react-hook-form';
 import { toast } from 'react-hot-toast';
 import { createCabin } from '../../services/apiCabins';
 import Button from '../../ui/Button';
@@ -42,15 +43,11 @@ function CreateCabinForm() {
   });
 
   const onSubmit: SubmitHandler<IFormInputs> = (data) => {
-    mutate(data);
-  };
-
-  const onError: SubmitErrorHandler<IFormInputs> = (errors) => {
-    console.log(errors);
+    mutate({ ...data, image: data.image[0] });
   };
 
   return (
-    <Form onSubmit={handleSubmit(onSubmit, onError)}>
+    <Form onSubmit={handleSubmit(onSubmit)}>
       <FormRow label="Cabin name" errorMsg={errors?.name?.message}>
         <Input
           type="text"
@@ -105,7 +102,13 @@ function CreateCabinForm() {
       </FormRow>
 
       <FormRow label="Cabin Photo">
-        <FileInput id="image" accept="image/*" />
+        <FileInput
+          id="image"
+          accept="image/*"
+          {...register('image', {
+            required: 'This field is required',
+          })}
+        />
       </FormRow>
 
       <FormRow>
