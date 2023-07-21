@@ -5,6 +5,6 @@ export type ICabin = {
   maxCapacity: number;
   regularPrice: number;
   discount: number;
-  image?: object | string | undefined;
+  image?: string | undefined;
   description: string;
 };

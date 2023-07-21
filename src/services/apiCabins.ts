@@ -6,7 +6,6 @@
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 import { ICabin } from '../types/cabin';
 import supabase, { supabaseUrl } from './supabase';
-
 export async function getCabins(): Promise<ICabin[]> {
   const { data, error } = await supabase.from('oasis_cabins').select('*');
 
@@ -18,21 +17,35 @@ export async function getCabins(): Promise<ICabin[]> {
   return data as ICabin[];
 }
 
-export async function createCabin(newCabin: ICabin | any) {
+export async function createEditCabin(
+  newCabin: ICabin | any,
+  id?: string | number
+) {
+  const hasImgaepath = newCabin.image?.startsWith?.(supabaseUrl);
+
   const imageName = `${Math.random()}-${newCabin.image.name}`.replace(
     /\//g,
     ''
   );
 
-  const imagePath = `${supabaseUrl}/storage/v1/object/public/oasis-cabin-images/${imageName}`;
+  const imagePath = hasImgaepath
+    ? newCabin.image
+    : `${supabaseUrl}/storage/v1/object/public/oasis-cabin-images/${imageName}`;
 
-  // https://vufwuomaggvbzodgaegz.supabase.co/storage/v1/object/public/oasis-cabin-images/cabin-001.jpg
+  // 1. Create / edit table canin
+  let query: any = supabase.from('oasis_cabins');
 
-  // 1. Create table
-  const { data, error } = await supabase
-    .from('oasis_cabins')
-    .insert([{ ...newCabin, image: imagePath }])
-    .select();
+  // A) CREATE
+  if (!id) query = query.insert([{ ...newCabin, image: imagePath }]);
+
+  // B) EDIT
+  if (id)
+    query = query
+      .update({ ...newCabin, image: imagePath })
+      .eq('id', id)
+      .select();
+
+  const { data, error } = await query.select().single();
 
   if (error) {
     throw new Error('Cabins could not be added');
