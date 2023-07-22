@@ -70,7 +70,6 @@ function CreateCabinForm({
       createCabin(
         { ...data, image },
         {
-          // onSuccess: (data) => reset(), // We can also get the newly created data here
           onSuccess: () => reset(),
         }
       );

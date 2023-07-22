@@ -52,6 +52,7 @@ export async function createEditCabin(
   }
 
   // 2. Update image
+  if (hasImgaepath) return data as ICabin[];
   const { error: storageError } = await supabase.storage
     .from('oasis-cabin-images')
     .upload(imageName, newCabin.image);
