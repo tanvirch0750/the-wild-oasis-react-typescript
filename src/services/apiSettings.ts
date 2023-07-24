@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import { ISetting } from '../types/setting';
 import supabase from './supabase';
 
 export async function getSettings() {
@@ -10,11 +12,11 @@ export async function getSettings() {
     console.error(error);
     throw new Error('Settings could not be loaded');
   }
-  return data;
+  return data as ISetting;
 }
 
 // We expect a newSetting object that looks like {setting: newValue}
-export async function updateSetting(newSetting) {
+export async function updateSetting(newSetting: Partial<ISetting>) {
   const { data, error } = await supabase
     .from('oasis_settings')
     .update(newSetting)
