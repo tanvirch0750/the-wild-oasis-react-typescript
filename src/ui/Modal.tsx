@@ -2,6 +2,7 @@ import { cloneElement, createContext, useContext, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { HiXMark } from 'react-icons/hi2';
 import styled from 'styled-components';
+import { useOutsideClick } from '../hooks/useOutsideClick';
 
 const StyledModal = styled.div`
   position: fixed;
@@ -52,10 +53,10 @@ const Button = styled.button`
   }
 `;
 
-interface ModalContextType {
-  openName: string;
-  close: () => void;
-  open: (name: string) => void;
+export interface ModalContextType {
+  openName?: string;
+  close?: () => void;
+  open?: (name: string) => void;
 }
 
 interface ModalProps {
@@ -94,21 +95,23 @@ function Open({ children, opens: opensWindowName }: OpenProps) {
 
   const { open } = context;
 
-  return cloneElement(children, { onClick: () => open(opensWindowName) });
+  return cloneElement(children, { onClick: () => open?.(opensWindowName) });
 }
 
 function Window({ children, name }: WindowProps) {
   const context = useContext(ModalContext);
 
-  if (!context) return null;
+  // for removing modal when click outside
+  const ref = useOutsideClick(context as ModalContextType);
 
+  if (!context) return null;
   const { openName, close } = context;
 
   if (name !== openName) return null;
 
   return createPortal(
     <Overlay>
-      <StyledModal>
+      <StyledModal ref={ref}>
         <Button onClick={close}>
           <HiXMark />
         </Button>
