@@ -64,7 +64,10 @@ function CreateCabinForm({
         { newCabinData: { ...data, image }, id: editId },
         {
           // onSuccess: (data) => reset(), // We can also get the newly created data here
-          onSuccess: () => reset(),
+          onSuccess: () => {
+            reset();
+            onCloseModal?.();
+          },
         }
       );
 
