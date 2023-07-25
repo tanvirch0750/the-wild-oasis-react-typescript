@@ -26,9 +26,11 @@ type IFormInputs = {
 
 type ICreateCabinProps = {
   cabinToEdit?: ICabin;
+  onCloseModal?: () => void;
 };
 
 function CreateCabinForm({
+  onCloseModal,
   cabinToEdit = {
     name: '',
     maxCapacity: 0,
@@ -70,13 +72,19 @@ function CreateCabinForm({
       createCabin(
         { ...data, image },
         {
-          onSuccess: () => reset(),
+          onSuccess: () => {
+            reset();
+            onCloseModal?.();
+          },
         }
       );
   };
 
   return (
-    <Form onSubmit={handleSubmit(onSubmit)}>
+    <Form
+      onSubmit={handleSubmit(onSubmit)}
+      type={onCloseModal ? 'modal' : 'regular'}
+    >
       <FormRow label="Cabin name" errorMsg={errors?.name?.message}>
         <Input
           type="text"
@@ -157,7 +165,11 @@ function CreateCabinForm({
 
       <FormRow>
         <>
-          <Button variation="secondary" type="reset">
+          <Button
+            variation="secondary"
+            type="reset"
+            onClick={() => onCloseModal?.()}
+          >
             Cancel
           </Button>
           <Button disabled={isWorking}>
