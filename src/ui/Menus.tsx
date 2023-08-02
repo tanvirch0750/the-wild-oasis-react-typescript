@@ -1,6 +1,24 @@
-import styled from "styled-components";
+/* eslint-disable @typescript-eslint/no-empty-function */
 
-const StyledMenu = styled.div`
+import { createContext, useContext, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { HiEllipsisVertical, HiXMark } from 'react-icons/hi2';
+import styled from 'styled-components';
+
+interface Position {
+  x: number;
+  y: number;
+}
+
+export interface MenusContextProps {
+  openId: string;
+  open: (id: string) => void;
+  close: () => void;
+  position: Position | null;
+  setPosition: (position: Position | null) => void;
+}
+
+const Menu = styled.div`
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -25,15 +43,15 @@ const StyledToggle = styled.button`
   }
 `;
 
-const StyledList = styled.ul`
+const StyledList = styled.ul<{ position: Position | null }>`
   position: fixed;
 
   background-color: var(--color-grey-0);
   box-shadow: var(--shadow-md);
   border-radius: var(--border-radius-md);
 
-  right: ${(props) => props.position.x}px;
-  top: ${(props) => props.position.y}px;
+  right: ${(props) => props.position?.x}px;
+  top: ${(props) => props.position?.y}px;
 `;
 
 const StyledButton = styled.button`
@@ -60,3 +78,98 @@ const StyledButton = styled.button`
     transition: all 0.3s;
   }
 `;
+
+const MenusContext = createContext<MenusContextProps>({
+  openId: '',
+  open: () => {},
+  close: () => {},
+  position: null,
+  setPosition: () => {},
+});
+
+function Menus({ children }: { children: React.ReactNode }) {
+  const [openId, setOpenId] = useState('');
+  const [position, setPosition] = useState<Position | null>(null);
+
+  const close = () => setOpenId('');
+  const open = (id: string) => setOpenId(id);
+
+  return (
+    <MenusContext.Provider
+      value={{ openId, open, close, position, setPosition }}
+    >
+      {children}
+    </MenusContext.Provider>
+  );
+}
+
+function Toggle({ id }: { id: string | number | undefined }) {
+  const { openId, close, open, setPosition } = useContext(MenusContext);
+
+  function handleClick(e: React.MouseEvent<HTMLButtonElement>) {
+    const rect = (e.target as HTMLElement)
+      .closest('button')
+      ?.getBoundingClientRect();
+    if (rect) {
+      setPosition({
+        x: window.innerWidth - rect.width - rect.x,
+        y: rect.y + rect.height + 8,
+      });
+    }
+
+    openId === '' || openId !== id ? open(id as string) : close();
+  }
+
+  return (
+    <StyledToggle onClick={handleClick}>
+      {id === openId ? <HiXMark /> : <HiEllipsisVertical />}
+    </StyledToggle>
+  );
+}
+
+function List({
+  id,
+  children,
+}: {
+  id: string | number | undefined;
+  children: React.ReactNode;
+}) {
+  const { openId, position } = useContext(MenusContext);
+
+  if (openId !== id) return null;
+
+  return createPortal(
+    <StyledList position={position}>{children}</StyledList>,
+    document.body
+  );
+}
+
+function Button({
+  children,
+  icon,
+  onClick,
+}: {
+  children: React.ReactNode;
+  icon: React.ReactNode;
+  onClick?: () => void;
+}) {
+  const { close } = useContext(MenusContext);
+  function handleClick() {
+    onClick?.();
+    close();
+  }
+  return (
+    <li>
+      <StyledButton onClick={handleClick}>
+        {icon} <span>{children}</span>
+      </StyledButton>
+    </li>
+  );
+}
+
+Menus.Menu = Menu;
+Menus.Toggle = Toggle;
+Menus.List = List;
+Menus.Button = Button;
+
+export default Menus;

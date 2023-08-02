@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+
 import { ModalContextType } from '../ui/Modal';
 
 export function useOutsideClick(
